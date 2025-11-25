@@ -10,6 +10,22 @@
         }
 
         [Fact]
+        public async Task GetTodoById_ReturnsOkOfTodoResult()
+        {
+            // Arrange
+            _dbContextMock.Todos.AddRange(
+            [
+                new Todo { Id = 1, Name = "Test Todo 1", IsComplete = false },
+            ]);
+
+            // Act
+            var result = await ToDoEndpoints.GetTodo(1, _dbContextMock);
+
+            // Assert: Check for the correct returned type
+            Assert.IsType<Ok<TodoItemDTO>>(result);
+        }
+
+        [Fact]
         public async Task GetAllTodos_ReturnsOkOfTodosResult()
         {
             // Arrange
