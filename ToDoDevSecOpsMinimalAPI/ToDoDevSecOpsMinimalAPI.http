@@ -1,0 +1,37 @@
+﻿@ToDoDevSecOpsMinimalAPI_HostAddress = https://localhost:32773
+
+POST {{ToDoDevSecOpsMinimalAPI_HostAddress}}/todoitems
+Content-Type: application/json
+
+{
+  "name":"walk dog",
+  "isComplete":true
+}
+
+###
+
+GET {{ToDoDevSecOpsMinimalAPI_HostAddress}}/todoitems
+
+###
+
+GET {{ToDoDevSecOpsMinimalAPI_HostAddress}}/todoitems/complete
+
+###
+
+DELETE {{ToDoDevSecOpsMinimalAPI_HostAddress}}/todoitems/1
+
+###
+
+GET {{ToDoDevSecOpsMinimalAPI_HostAddress}}/todoitems/1
+
+###
+
+PUT {{ToDoDevSecOpsMinimalAPI_HostAddress}}/todoitems/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "name": "feed fish",
+  "isComplete": false
+}
+###
