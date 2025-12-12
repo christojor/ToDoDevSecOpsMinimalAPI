@@ -36,19 +36,16 @@ public class ToDoServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_Edge_LongNameItemHandled()
+    public async Task Cannot_Create_ToDo_With_Name_Exceeding_MaxLength()
     {
-        var longName = new string('x', 1000);
-        _dbContext.Todos.Add(new Todo { Name = longName, IsComplete = false });
-        await _dbContext.SaveChangesAsync();
+        var longName = new string('z', 101);
+        var dto = new TodoCreateDTO { Name = longName, IsComplete = false };
 
-        var items = await _service.GetAllAsync();
-        Assert.Single(items);
-        Assert.Equal(1000, items[0].Name.Length);
+        await Assert.ThrowsAsync<ArgumentException>(async () => await _service.CreateAsync(dto));
     }
 
     [Fact]
-    public async Task GetByIdAsync_Positive_ReturnsItem()
+    public async Task GetByIdAsync_With_DB_Item_Returns_Item()
     {
         var todo = new Todo { Name = "GetMe", IsComplete = false };
         _dbContext.Todos.Add(todo);
@@ -62,21 +59,21 @@ public class ToDoServiceTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_Negative_ReturnsNullForMissingId()
+    public async Task GetByIdAsync_Without_DB_Item_Returns_Null()
     {
         var found = await _service.GetByIdAsync(9999);
         Assert.Null(found);
     }
 
     [Fact]
-    public async Task GetByIdAsync_Edge_IdZeroReturnsNull()
+    public async Task GetByIdAsync_With_Invalid_Id_Returns_Null()
     {
         var found = await _service.GetByIdAsync(0);
         Assert.Null(found);
     }
 
     [Fact]
-    public async Task CreateAsync_Positive_CreatesAndReturnsTodo()
+    public async Task CreateAsync_Creates_And_Returns_Todo()
     {
         var dto = new TodoCreateDTO { Name = "NewTodo", IsComplete = true };
         var created = await _service.CreateAsync(dto);
@@ -91,22 +88,13 @@ public class ToDoServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_Negative_NullDto_Throws()
+    public async Task CreateAsync_With_No_Input_Throws_Exception()
     {
         await Assert.ThrowsAsync<NullReferenceException>(async () => await _service.CreateAsync(null!));
     }
 
     [Fact]
-    public async Task CreateAsync_Edge_LongNameIsAccepted()
-    {
-        var longName = new string('y', 200);
-        var dto = new TodoCreateDTO { Name = longName, IsComplete = false };
-        var created = await _service.CreateAsync(dto);
-        Assert.Equal(200, created.Name.Length);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_Positive_UpdatesExistingTodo()
+    public async Task UpdateAsync_Updates_Existing_Todo()
     {
         var todo = new Todo { Name = "Before", IsComplete = false };
         _dbContext.Todos.Add(todo);
@@ -122,7 +110,7 @@ public class ToDoServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_Negative_NonExistingReturnsFalse()
+    public async Task UpdateAsync_Cannot_Update_Non_Existing_Todo()
     {
         var updateDto = new TodoUpdateDTO { Id = 9999, Name = "X", IsComplete = false };
         var result = await _service.UpdateAsync(9999, updateDto);
@@ -130,13 +118,13 @@ public class ToDoServiceTests
     }
 
     [Fact]
-    public async Task UpdateAsync_Edge_NullDto_Throws()
+    public async Task UpdateAsync_Cannot_Update_With_Null_Input_Throws_Exception()
     {
         await Assert.ThrowsAsync<NullReferenceException>(async () => await _service.UpdateAsync(1, null!));
     }
 
     [Fact]
-    public async Task DeleteAsync_Positive_DeletesAndReturnsTrue()
+    public async Task DeleteAsync_Deletes_ToDo_And_Returns_True()
     {
         var todo = new Todo { Name = "ToDelete", IsComplete = false };
         _dbContext.Todos.Add(todo);
@@ -150,14 +138,14 @@ public class ToDoServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_Negative_NonExistingReturnsFalse()
+    public async Task DeleteAsync_Cannot_Delete_Non_Existing_Todo()
     {
         var result = await _service.DeleteAsync(9999);
         Assert.False(result);
     }
 
     [Fact]
-    public async Task DeleteAsync_Edge_DeleteTwiceSecondReturnsFalse()
+    public async Task DeleteAsync_Cannot_Delete_Already_Deleted_Todo()
     {
         var todo = new Todo { Name = "DoubleDelete", IsComplete = false };
         _dbContext.Todos.Add(todo);
