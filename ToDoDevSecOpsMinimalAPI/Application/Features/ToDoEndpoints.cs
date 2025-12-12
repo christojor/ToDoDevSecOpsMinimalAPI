@@ -7,7 +7,6 @@
             var todoItems = app.MapGroup("/todoitems");
 
             todoItems.MapGet("/", GetAllTodos);
-            todoItems.MapGet("/complete", GetCompleteTodos);
             todoItems.MapGet("/{id}", GetTodo);
             todoItems.MapPost("/", CreateTodo);
             todoItems.MapPut("/{id}", UpdateTodo);
@@ -17,11 +16,6 @@
         public static async Task<IResult> GetAllTodos(ToDoDbContext db)
         {
             return TypedResults.Ok(await db.Todos.Select(x => new TodoItemDTO(x)).ToArrayAsync());
-        }
-
-        public static async Task<IResult> GetCompleteTodos(ToDoDbContext db)
-        {
-            return TypedResults.Ok(await db.Todos.Where(t => t.IsComplete).Select(x => new TodoItemDTO(x)).ToListAsync());
         }
 
         public static async Task<IResult> GetTodo(int id, ToDoDbContext db)

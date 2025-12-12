@@ -17,17 +17,31 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.11" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.0.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <!-- enable collecting code coverage in dotnet test and Visual Studio Test Explorer -->
+    <PackageReference Include="coverlet.collector" Version="4.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Application\Common\Interfaces\" />
-    <Folder Include="Application\Infrastructure\Persistence\Migrations\" />
-    <Folder Include="Application\Infrastructure\Services\" />
+    <Folder Include="Application\\Common\\Interfaces\\" />
+    <Folder Include="Application\\Infrastructure\\Persistence\\Migrations\\" />
+    <Folder Include="Application\\Infrastructure\\Services\\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Link the CI workflow into the project so it appears in Solution Explorer under .github/workflows -->
+    <None Include="..\\.github\\workflows\\ci.yml">
+      <Link>.github\\workflows\\ci.yml</Link>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <!-- include runsettings so it is selectable from Visual Studio Test Explorer (Test > Configure Run Settings > Select file) -->
+    <None Include="coverage.runsettings" />
   </ItemGroup>
 
 </Project>
