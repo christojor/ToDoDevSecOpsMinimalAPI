@@ -15,41 +15,41 @@
 
         public static async Task<IResult> GetAllTodos(ToDoDbContext db)
         {
-            return TypedResults.Ok(await db.Todos.Select(x => new TodoItemDTO(x)).ToArrayAsync());
+            return TypedResults.Ok(await db.Todos.Select(x => new TodoReadDTO(x)).ToArrayAsync());
         }
 
         public static async Task<IResult> GetTodo(int id, ToDoDbContext db)
         {
             return await db.Todos.FindAsync(id)
                 is Todo todo
-                    ? TypedResults.Ok(new TodoItemDTO(todo))
+                    ? TypedResults.Ok(new TodoReadDTO(todo))
                     : TypedResults.NotFound();
         }
 
-        public static async Task<IResult> CreateTodo(TodoItemDTO todoItemDTO, ToDoDbContext db)
+        public static async Task<IResult> CreateTodo(TodoCreateDTO todoCreateDTO, ToDoDbContext db)
         {
             var todoItem = new Todo
             {
-                IsComplete = todoItemDTO.IsComplete,
-                Name = todoItemDTO.Name
+                IsComplete = todoCreateDTO.IsComplete,
+                Name = todoCreateDTO.Name
             };
 
             db.Todos.Add(todoItem);
             await db.SaveChangesAsync();
 
-            todoItemDTO = new TodoItemDTO(todoItem);
+            var todoReadDto = new TodoReadDTO(todoItem);
 
-            return TypedResults.Created($"/todoitems/{todoItem.Id}", todoItemDTO);
+            return TypedResults.Created($"/todoitems/{todoItem.Id}", todoReadDto);
         }
 
-        public static async Task<IResult> UpdateTodo(int id, TodoItemDTO todoItemDTO, ToDoDbContext db)
+        public static async Task<IResult> UpdateTodo(int id, TodoUpdateDTO todoUpdateDTO, ToDoDbContext db)
         {
             var todo = await db.Todos.FindAsync(id);
 
             if (todo is null) return TypedResults.NotFound();
 
-            todo.Name = todoItemDTO.Name;
-            todo.IsComplete = todoItemDTO.IsComplete;
+            todo.Name = todoUpdateDTO.Name;
+            todo.IsComplete = todoUpdateDTO.IsComplete;
 
             await db.SaveChangesAsync();
 

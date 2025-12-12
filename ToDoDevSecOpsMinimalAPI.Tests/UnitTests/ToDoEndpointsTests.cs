@@ -1,4 +1,4 @@
-﻿namespace ToDoDevSecOpsMinimalAPI.Tests.UnitTests
+namespace ToDoDevSecOpsMinimalAPI.Tests.UnitTests
 {
     using System.Threading.Tasks;
     using Xunit;

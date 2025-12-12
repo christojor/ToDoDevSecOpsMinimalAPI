@@ -1,11 +1,30 @@
 ﻿namespace ToDoDevSecOpsMinimalAPI.Application.Common.Models;
-public class TodoItemDTO
+
+public class TodoCreateDTO
 {
-    public int Id { get; set; }
-    public string? Name { get; set; }
+    [Required, MaxLength(100)]
+    public string Name { get; set; } = string.Empty;
     public bool IsComplete { get; set; }
 
-    public TodoItemDTO() { }
-    public TodoItemDTO(Todo todoItem) =>
-    (Id, Name, IsComplete) = (todoItem.Id, todoItem.Name, todoItem.IsComplete);
+    public TodoCreateDTO() { }
+}
+
+public class TodoReadDTO
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public bool IsComplete { get; set; }
+
+    public TodoReadDTO() { }
+    public TodoReadDTO(Todo todo) => (Id, Name, IsComplete) = (todo.Id, todo.Name, todo.IsComplete);
+}
+
+public class TodoUpdateDTO
+{
+    [Required]
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public bool IsComplete { get; set; }
+
+    public TodoUpdateDTO() { }
 }
