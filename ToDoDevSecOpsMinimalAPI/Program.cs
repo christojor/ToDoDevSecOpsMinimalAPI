@@ -1,6 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ToDoDbContext>(opt => opt.UseInMemoryDatabase("TodoList"));
+builder.Services.AddScoped<IToDoService, ToDoService>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddCors(options =>
 {
@@ -12,22 +13,7 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "DevSecOps Minimal ToDo API",
-        Version = "v1",
-        Description = "A minimal ToDo API demonstrating DevSecOps practices using ASP.NET Core.\n\n" +
-                      "Repository: [ToDoDevSecOpsMinimalAPI](https://github.com/christojor/ToDoDevSecOpsMinimalAPI)\n\n" +
-                      "Frontend: [ToDoDevSecOpsGUI](https://github.com/christojor/ToDoDevSecOpsGUI)",
-        Contact = new OpenApiContact
-        {
-            Name = "Support",
-            Email = "christoffer.joergensen@gmail.com"
-        }
-    });
-});
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
