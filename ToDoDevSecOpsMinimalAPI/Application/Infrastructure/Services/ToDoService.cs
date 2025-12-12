@@ -1,11 +1,5 @@
 namespace ToDoDevSecOpsMinimalAPI.Application.Infrastructure.Services;
 
-using Microsoft.EntityFrameworkCore;
-using ToDoDevSecOpsMinimalAPI.Application.Common.Models;
-using ToDoDevSecOpsMinimalAPI.Application.Domain.ToDos;
-using ToDoDevSecOpsMinimalAPI.Application.Infrastructure.Persistence;
-using ToDoDevSecOpsMinimalAPI.Application.Common.Interfaces;
-
 public class ToDoService : IToDoService
 {
     private readonly ToDoDbContext _db;
@@ -28,6 +22,9 @@ public class ToDoService : IToDoService
 
     public async Task<TodoReadDTO> CreateAsync(TodoCreateDTO dto)
     {
+        if (dto is null) throw new NullReferenceException();
+        if (dto.Name?.Length > 100) throw new ArgumentException("Name exceeds maximum length of 100 characters", nameof(dto.Name));
+
         var todo = new Todo { Name = dto.Name, IsComplete = dto.IsComplete };
         _db.Todos.Add(todo);
         await _db.SaveChangesAsync();
@@ -36,6 +33,8 @@ public class ToDoService : IToDoService
 
     public async Task<bool> UpdateAsync(int id, TodoUpdateDTO dto)
     {
+        if (dto is null) throw new NullReferenceException();
+
         var todo = await _db.Todos.FindAsync(id);
         if (todo is null) return false;
         todo.Name = dto.Name;

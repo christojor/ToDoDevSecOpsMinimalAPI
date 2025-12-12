@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Application\Infrastructure\Persistence\Migrations\**" />
+    <Content Remove="Application\Infrastructure\Persistence\Migrations\**" />
+    <EmbeddedResource Remove="Application\Infrastructure\Persistence\Migrations\**" />
+    <None Remove="Application\Infrastructure\Persistence\Migrations\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="GlobalUsingsAnalyzer" Version="1.4.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -27,10 +34,6 @@
     </PackageReference>
     <!-- enable collecting code coverage in dotnet test and Visual Studio Test Explorer -->
     <PackageReference Include="coverlet.collector" Version="4.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Application\\Infrastructure\\Persistence\\Migrations\\" />
   </ItemGroup>
 
   <ItemGroup>

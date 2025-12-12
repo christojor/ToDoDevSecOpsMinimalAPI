@@ -44,3 +44,24 @@ jobs:
       with:
         name: code-coverage-report
         path: coverage-report
+
+    - name: Install Newman
+      run: npm install -g newman
+
+    - name: Start API for E2E/API tests
+      run: |
+        dotnet run --project ToDoDevSecOpsMinimalAPI/ToDoDevSecOpsMinimalAPI.csproj --urls http://localhost:5001 &
+        for i in {1..30}; do
+          if curl -sSf http://localhost:5001/api/swagger >/dev/null; then
+            echo "API started" && break
+          fi
+          sleep 1
+        done
+
+    - name: Run Postman Collection with Newman
+      run: |
+        newman run .github/postman/ToDoDevSecOpsMinimalAPI.postman_collection.json -e .github/postman/ToDoDevSecOpsMinimalAPI.postman_environment.json --env-var baseUrl=http://localhost:5001/api --timeout-request 10000
+
+    - name: Kill Dotnet Process
+      run: |
+        pkill -f "dotnet run" || true

@@ -1,0 +1,61 @@
+{
+  "info": {
+    "name": "ToDoDevSecOpsMinimalAPI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Todo",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"walk dog\",\n  \"isComplete\": true\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/todoitems",
+          "host": ["{{baseUrl}}"],
+          "path": ["todoitems"]
+        }
+      }
+    },
+    {
+      "name": "Get All Todos",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/todoitems",
+          "host": ["{{baseUrl}}"],
+          "path": ["todoitems"]
+        }
+      }
+    },
+    {
+      "name": "Get Todo By Id",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/todoitems/1",
+          "host": ["{{baseUrl}}"],
+          "path": ["todoitems", "1"]
+        }
+      }
+    },
+    {
+      "name": "Update Todo",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"id\": 1,\n  \"name\": \"feed fish\",\n  \"isComplete\": false\n}" },
+        "url": { "raw": "{{baseUrl}}/todoitems/1", "host": ["{{baseUrl}}"], "path": ["todoitems", "1"] }
+      }
+    },
+    {
+      "name": "Delete Todo",
+      "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/todoitems/1", "host": ["{{baseUrl}}"], "path": ["todoitems", "1"] } }
+    }
+  ]
+}

@@ -1,7 +1,5 @@
 ﻿namespace ToDoDevSecOpsMinimalAPI.Application.Features;
 
-using ToDoDevSecOpsMinimalAPI.Application.Common.Interfaces;
-
 public static class ToDoEndpoints
 {
     public static void MapToDoGroup(this WebApplication app)
