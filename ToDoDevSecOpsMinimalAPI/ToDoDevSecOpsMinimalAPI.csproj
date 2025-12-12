@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Application\Infrastructure\Persistence\Migrations\**" />
+    <Content Remove="Application\Infrastructure\Persistence\Migrations\**" />
+    <EmbeddedResource Remove="Application\Infrastructure\Persistence\Migrations\**" />
+    <None Remove="Application\Infrastructure\Persistence\Migrations\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="GlobalUsingsAnalyzer" Version="1.4.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,6 +23,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.11" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.11" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="Microsoft.OpenApi" Version="3.0.2" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.0.1" />
@@ -26,12 +34,6 @@
     </PackageReference>
     <!-- enable collecting code coverage in dotnet test and Visual Studio Test Explorer -->
     <PackageReference Include="coverlet.collector" Version="4.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Application\\Common\\Interfaces\\" />
-    <Folder Include="Application\\Infrastructure\\Persistence\\Migrations\\" />
-    <Folder Include="Application\\Infrastructure\\Services\\" />
   </ItemGroup>
 
   <ItemGroup>

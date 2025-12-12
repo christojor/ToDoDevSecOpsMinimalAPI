@@ -35,5 +35,12 @@ To run a specific test project, specify its path:
 dotnet test ./ToDoDevSecOpsMinimalAPI.Tests/ToDoDevSecOpsMinimalAPI.Tests.csproj
 ```
 
+## Frontend
+A companion frontend application that works with this API is available at:
+
+- Frontend repository: https://github.com/christojor/ToDoDevSecOpsGUI
+
+Clone and run the frontend separately; configure its API base URL to point at this API (for local development use `http://localhost:5000/api` or `https://localhost:5001/api`).
+
 ## Security Requirements
 See the full security requirements and analysis: [Security Requirements](SECURITY-ANALYSIS.md)

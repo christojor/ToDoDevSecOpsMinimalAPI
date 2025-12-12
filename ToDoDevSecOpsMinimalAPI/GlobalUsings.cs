@@ -1,8 +1,13 @@
 global using ToDoDevSecOpsMinimalAPI.Application.Domain.ToDos;
 global using Microsoft.EntityFrameworkCore;
 global using ToDoDevSecOpsMinimalAPI.Application.Infrastructure.Persistence;
-global using Microsoft.AspNetCore.Http.HttpResults;
-global using Xunit;
 global using ToDoDevSecOpsMinimalAPI.Application.Common.Models;
 global using ToDoDevSecOpsMinimalAPI.Application.Features;
-global using Microsoft.OpenApi;
+global using ToDoDevSecOpsMinimalAPI.Application.Infrastructure.Services;
+global using System.ComponentModel.DataAnnotations;
+global using ToDoDevSecOpsMinimalAPI.Application.Common.Interfaces;
+global using System;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using Xunit;
+global using Microsoft.AspNetCore.Http.HttpResults;
