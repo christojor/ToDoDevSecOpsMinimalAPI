@@ -26,32 +26,37 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
-    - name: Test (with coverage using coverlet.msbuild)
+    - name: Test
       run: |
-        dotnet test Tests/Tests.csproj --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="./TestResults/coverage/coverage" /p:CoverletOutputFormat="cobertura"
+        # ensure TestResults exists at repository root
+        mkdir -p TestResults
+        dotnet test Tests/Tests.csproj --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="./TestResults/coverage.cobertura.xml" /p:CoverletOutputFormat="cobertura"
 
-    - name: Show TestResults files
+    - name: Show TestResults Files (Diagnostic)
       run: |
         echo 'TestResults contents (recursive):'
         ls -R TestResults || true
         echo 'TestResults sizes:'
         du -h TestResults || true
-        echo 'Coverage dir listing:'
-        ls -lah TestResults/coverage || true
         echo 'Coverage file head (if exists):'
-        head -n 200 TestResults/coverage* || true
+        if [ -f TestResults/coverage.cobertura.xml ]; then
+          echo 'coverage.cobertura.xml found:'
+          head -n 200 TestResults/coverage.cobertura.xml || true
+        else
+          echo 'No coverage.cobertura.xml at TestResults/coverage.cobertura.xml'
+        fi
 
-    - name: Upload coverage XML artifact
+    - name: Upload Coverage XML Artifact
       uses: actions/upload-artifact@v4
       with:
         name: coverage-xml
-        path: TestResults/**/coverage*.xml
+        path: TestResults/coverage.cobertura.xml
 
-    - name: Upload coverage to Codecov
+    - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./TestResults/**/coverage*.xml
+        files: ./TestResults/coverage.cobertura.xml
         fail_ci_if_error: true
 
     - name: Install Newman
@@ -75,13 +80,13 @@ jobs:
       run: |
         pkill -f "dotnet run" || true
 
-    - name: Print Cobertura XML (diagnostic)
+    - name: Print Cobertura XML (Diagnostic)
       if: always()
       run: |
-        echo 'Printing any cobertura XML files found in TestResults:'
-        for f in TestResults/**/coverage*.xml; do
-          if [ -f "$f" ]; then
-            echo "\n==== $f (first 200 lines) ====\n";
-            head -n 200 "$f" || true;
-          fi;
-        done
+        echo 'Printing cobertura XML file (if present):'
+        if [ -f TestResults/coverage.cobertura.xml ]; then
+          echo "==== TestResults/coverage.cobertura.xml (first 200 lines) ====";
+          head -n 200 TestResults/coverage.cobertura.xml || true;
+        else
+          echo 'No cobertura XML file at TestResults/coverage.cobertura.xml';
+        fi
