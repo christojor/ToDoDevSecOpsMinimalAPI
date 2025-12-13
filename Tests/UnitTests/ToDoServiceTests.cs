@@ -30,6 +30,10 @@ public class ToDoServiceTests
     [Fact]
     public async Task GetAllAsync_With_Empty_DB_Returns_Empty_Array()
     {
+        // Ensure DB is empty (clear any cross-test data in the in-memory database)
+        _dbContext.Todos.RemoveRange(_dbContext.Todos);
+        await _dbContext.SaveChangesAsync();
+
         var items = await _service.GetAllAsync();
         Assert.NotNull(items);
         Assert.Empty(items);

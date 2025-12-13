@@ -1,5 +1,9 @@
 namespace ToDoDevSecOpsMinimalAPI.Application.Infrastructure.Services;
 
+using ToDoDevSecOpsMinimalAPI.Application.Common.Models;
+using ToDoDevSecOpsMinimalAPI.Application.Domain.ToDos;
+using ToDoDevSecOpsMinimalAPI.Application.Infrastructure.Persistence;
+
 public class ToDoService : IToDoService
 {
     private readonly ToDoDbContext _db;
@@ -23,9 +27,11 @@ public class ToDoService : IToDoService
     public async Task<TodoReadDTO> CreateAsync(TodoCreateDTO dto)
     {
         if (dto is null) throw new NullReferenceException();
-        if (dto.Name?.Length > 100) throw new ArgumentException("Name exceeds maximum length of 100 characters", nameof(dto.Name));
+        if (string.IsNullOrWhiteSpace(dto.Name)) throw new ArgumentException("Name is required", nameof(dto.Name));
+        if (dto.Name.Length > 100) throw new ArgumentException("Name exceeds maximum length of 100 characters", nameof(dto.Name));
 
-        var todo = new Todo { Name = dto.Name, IsComplete = dto.IsComplete };
+        var name = dto.Name; // local non-null copy
+        var todo = new Todo { Name = name, IsComplete = dto.IsComplete };
         _db.Todos.Add(todo);
         await _db.SaveChangesAsync();
         return new TodoReadDTO(todo);
@@ -34,6 +40,8 @@ public class ToDoService : IToDoService
     public async Task<bool> UpdateAsync(int id, TodoUpdateDTO dto)
     {
         if (dto is null) throw new NullReferenceException();
+        if (string.IsNullOrWhiteSpace(dto.Name)) throw new ArgumentException("Name is required", nameof(dto.Name));
+        if (dto.Name.Length > 100) throw new ArgumentException("Name exceeds maximum length of 100 characters", nameof(dto.Name));
 
         var todo = await _db.Todos.FindAsync(id);
         if (todo is null) return false;

@@ -20,7 +20,27 @@
           "host": ["{{baseUrl}}"],
           "path": ["todoitems"]
         }
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Create: status code is 201', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('Create: response has id and name', function () {",
+              "    pm.expect(json).to.have.property('id');",
+              "    pm.expect(json).to.have.property('name', 'walk dog');",
+              "});",
+              "// save created id for subsequent requests",
+              "pm.environment.set('createdId', json.id);"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "Get All Todos",
@@ -31,31 +51,178 @@
           "host": ["{{baseUrl}}"],
           "path": ["todoitems"]
         }
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('GetAll: status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('GetAll: response is an array', function () {",
+              "    pm.expect(json).to.be.an('array');",
+              "});",
+              "pm.test('GetAll: contains created item', function () {",
+              "    const exists = json.some(i => i.name === 'walk dog');",
+              "    pm.expect(exists).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "Get Todo By Id",
       "request": {
         "method": "GET",
         "url": {
-          "raw": "{{baseUrl}}/todoitems/1",
+          "raw": "{{baseUrl}}/todoitems/{{createdId}}",
           "host": ["{{baseUrl}}"],
-          "path": ["todoitems", "1"]
+          "path": ["todoitems", "{{createdId}}"]
         }
-      }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('GetById: status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "const json = pm.response.json();",
+              "pm.test('GetById: response has expected id', function () {",
+              "    pm.expect(json).to.have.property('id');",
+              "    pm.expect(json.id).to.eql(parseInt(pm.environment.get('createdId')));",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "Update Todo",
       "request": {
         "method": "PUT",
         "header": [ { "key": "Content-Type", "value": "application/json" } ],
-        "body": { "mode": "raw", "raw": "{\n  \"id\": 1,\n  \"name\": \"feed fish\",\n  \"isComplete\": false\n}" },
-        "url": { "raw": "{{baseUrl}}/todoitems/1", "host": ["{{baseUrl}}"], "path": ["todoitems", "1"] }
-      }
+        "body": { "mode": "raw", "raw": "{\n  \"id\": {{createdId}},\n  \"name\": \"feed fish\",\n  \"isComplete\": false\n}" },
+        "url": { "raw": "{{baseUrl}}/todoitems/{{createdId}}", "host": ["{{baseUrl}}"], "path": ["todoitems", "{{createdId}}"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Update: status code is 204', function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "Delete Todo",
-      "request": { "method": "DELETE", "url": { "raw": "{{baseUrl}}/todoitems/1", "host": ["{{baseUrl}}"], "path": ["todoitems", "1"] } }
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "{{baseUrl}}/todoitems/{{createdId}}", "host": ["{{baseUrl}}"], "path": ["todoitems", "{{createdId}}"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Delete: status code is 204', function () {",
+              "    pm.response.to.have.status(204);",
+              "});",
+              "// cleanup environment variable",
+              "pm.environment.unset('createdId');"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Second Todo",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"buy milk\",\n  \"isComplete\": false\n}" },
+        "url": { "raw": "{{baseUrl}}/todoitems", "host": ["{{baseUrl}}"], "path": ["todoitems"] }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Create2: status code is 201', function () {",
+        "  pm.response.to.have.status(201);",
+        "});",
+        "const json = pm.response.json();",
+        "pm.test('Create2: has id and name', function () {",
+        "  pm.expect(json).to.have.property('id');",
+        "  pm.expect(json).to.have.property('name', 'buy milk');",
+        "});",
+        "pm.environment.set('createdId2', json.id);"
+      ] } }] 
+    },
+    {
+      "name": "Create Duplicate Todo",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"walk dog\",\n  \"isComplete\": false\n}" },
+        "url": { "raw": "{{baseUrl}}/todoitems", "host": ["{{baseUrl}}"], "path": ["todoitems"] }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('CreateDup: status code is 201', function () {",
+        "  pm.response.to.have.status(201);",
+        "});",
+        "const json = pm.response.json();",
+        "pm.test('CreateDup: duplicate created with same name', function () {",
+        "  pm.expect(json).to.have.property('name', 'walk dog');",
+        "  pm.expect(json).to.have.property('id');",
+        "});"
+      ] } }]
+    },
+    {
+      "name": "Get Non-Existing Todo",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "{{baseUrl}}/todoitems/9999", "host": ["{{baseUrl}}"], "path": ["todoitems", "9999"] }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('GetNonExist: status is 404', function () {",
+        "  pm.response.to.have.status(404);",
+        "});"
+      ] } }]
+    },
+    {
+      "name": "Update Non-Existing Todo",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"id\": 9999,\n  \"name\": \"no-op\",\n  \"isComplete\": false\n}" },
+        "url": { "raw": "{{baseUrl}}/todoitems/9999", "host": ["{{baseUrl}}"], "path": ["todoitems", "9999"] }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('UpdateNonExist: status is 404', function () {",
+        "  pm.response.to.have.status(404);",
+        "});"
+      ] } }]
+    },
+    {
+      "name": "Delete Non-Existing Todo",
+      "request": {
+        "method": "DELETE",
+        "url": { "raw": "{{baseUrl}}/todoitems/9999", "host": ["{{baseUrl}}"], "path": ["todoitems", "9999"] }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('DeleteNonExist: status is 404', function () {",
+        "  pm.response.to.have.status(404);",
+        "});"
+      ] } }]
     }
   ]
 }
