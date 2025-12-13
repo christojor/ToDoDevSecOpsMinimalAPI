@@ -36,6 +36,13 @@ jobs:
         name: coverage-xml
         path: TestResults/**/coverage.cobertura.xml
 
+    - name: Remove runsettings file before Codecov upload
+      run: |
+        if [ -f coverage.runsettings ]; then
+          echo "Removing coverage.runsettings to avoid Codecov upload errors";
+          rm coverage.runsettings;
+        fi
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
