@@ -4,6 +4,10 @@
     <DataCollectors>
       <DataCollector friendlyName="XPlat Code Coverage" uri="http://microsoft.com/schemas/VisualStudio/TeamTest/2019/DataCollector/CodeCoverage" assemblyQualifiedName="Coverlet.Collector.DataCollection.CoverletCoverageCollector, Coverlet.Collector">
         <Configuration>
+          <!-- Include the application assembly explicitly to ensure coverage is collected -->
+          <Include>
+            <ModuleToInclude>ToDoDevSecOpsMinimalAPI</ModuleToInclude>
+          </Include>
           <!-- Exclude test projects and generated code -->
           <ExcludeByFile>**/Migrations/*;**/*Tests*/**;**/*Test*/**</ExcludeByFile>
         </Configuration>

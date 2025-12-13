@@ -2,9 +2,9 @@ name: DevSecOps Minimal API CI
 
 on:
   push:
-    branches: [ "develop", "main" ]
+    branches: [ "develop", "test", "master" ]
   pull_request:
-    branches: [ "develop", "main" ]
+    branches: [ "develop", "test", "master" ]
 
 jobs:
   build:
@@ -26,28 +26,32 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
-    - name: Test (with coverage)
+    - name: Test (with coverage using coverlet.msbuild)
       run: |
-        dotnet test --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverage.runsettings --results-directory ./TestResults
+        dotnet test Tests/Tests.csproj --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="./TestResults/coverage/coverage" /p:CoverletOutputFormat="cobertura"
 
     - name: Show TestResults files
       run: |
-        echo 'TestResults contents:'
+        echo 'TestResults contents (recursive):'
         ls -R TestResults || true
-        echo 'Bin output:'
-        ls -R **/bin || true
+        echo 'TestResults sizes:'
+        du -h TestResults || true
+        echo 'Coverage dir listing:'
+        ls -lah TestResults/coverage || true
+        echo 'Coverage file head (if exists):'
+        head -n 200 TestResults/coverage* || true
 
     - name: Upload coverage XML artifact
       uses: actions/upload-artifact@v4
       with:
         name: coverage-xml
-        path: TestResults/**/coverage.cobertura.xml
+        path: TestResults/**/coverage*.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./TestResults/**/coverage.cobertura.xml
+        files: ./TestResults/**/coverage*.xml
         fail_ci_if_error: true
 
     - name: Install Newman
@@ -70,3 +74,14 @@ jobs:
     - name: Kill Dotnet Process
       run: |
         pkill -f "dotnet run" || true
+
+    - name: Print Cobertura XML (diagnostic)
+      if: always()
+      run: |
+        echo 'Printing any cobertura XML files found in TestResults:'
+        for f in TestResults/**/coverage*.xml; do
+          if [ -f "$f" ]; then
+            echo "\n==== $f (first 200 lines) ====\n";
+            head -n 200 "$f" || true;
+          fi;
+        done
