@@ -28,9 +28,19 @@ jobs:
 
     - name: Test
       run: |
-        # ensure TestResults exists at repository root
         mkdir -p TestResults
         dotnet test Tests/Tests.csproj --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="./TestResults/coverage.cobertura.xml" /p:CoverletOutputFormat="cobertura"
+
+    - name: Collect Generated Coverage XML
+      run: |
+        mkdir -p TestResults
+        found=$(find . -type f -name "coverage*.xml" -o -name "coverage.cobertura.xml" | head -n 1 || true)
+        if [ -n "$found" ]; then
+          echo "Found coverage file: $found"
+          cp "$found" TestResults/coverage.cobertura.xml
+        else
+          echo "No coverage XML found in repo workspace"
+        fi
 
     - name: Upload Coverage XML Artifact
       uses: actions/upload-artifact@v4
