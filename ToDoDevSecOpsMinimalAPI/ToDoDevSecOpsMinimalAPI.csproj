@@ -7,6 +7,9 @@
     <UserSecretsId>1b7349ad-ac32-4131-8e10-7b935d7e8ae9</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <NoWarn>$(NoWarn);CS7022</NoWarn>
+    <!-- ensure PDBs are generated for Release to allow coverage mapping -->
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
