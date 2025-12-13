@@ -2,12 +2,13 @@ name: DevSecOps Minimal API CI
 
 on:
   push:
-    branches: [ "develop", "main" ]
+    branches: [ "develop", "test", "master" ]
   pull_request:
-    branches: [ "develop", "main" ]
+    branches: [ "develop", "test", "master" ]
 
 jobs:
-  build-and-test:
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
@@ -27,23 +28,32 @@ jobs:
 
     - name: Test
       run: |
-        dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
+        mkdir -p TestResults
+        dotnet test Tests/Tests.csproj --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="./TestResults/coverage.cobertura.xml" /p:CoverletOutputFormat="cobertura"
 
-    - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.1.22
-
-    - name: Add Dotnet Global Tools to PATH
-      run: echo "PATH=$PATH:$HOME/.dotnet/tools" >> $GITHUB_ENV
-
-    - name: Generate Coverage Report
+    - name: Collect Generated Coverage XML
       run: |
-        reportgenerator -reports:"**/TestResults/**/coverage.cobertura.xml" -targetdir:coverage-report -reporttypes:Html
+        mkdir -p TestResults
+        found=$(find . -type f -name "coverage*.xml" -o -name "coverage.cobertura.xml" | head -n 1 || true)
+        if [ -n "$found" ]; then
+          echo "Found coverage file: $found"
+          cp "$found" TestResults/coverage.cobertura.xml
+        else
+          echo "No coverage XML found in repo workspace"
+        fi
 
-    - name: Upload Coverage Report Artifact
+    - name: Upload Coverage XML Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: code-coverage-report
-        path: coverage-report
+        name: coverage-xml
+        path: TestResults/coverage.cobertura.xml
+
+    - name: Upload Coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./TestResults/coverage.cobertura.xml
+        fail_ci_if_error: true
 
     - name: Install Newman
       run: npm install -g newman

@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>1b7349ad-ac32-4131-8e10-7b935d7e8ae9</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <NoWarn>$(NoWarn);CS7022</NoWarn>
+    <!-- ensure PDBs are generated for Release to allow coverage mapping -->
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,7 +36,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <!-- enable collecting code coverage in dotnet test and Visual Studio Test Explorer -->
-    <PackageReference Include="coverlet.collector" Version="4.1.0" />
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,7 +46,9 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <!-- include runsettings so it is selectable from Visual Studio Test Explorer (Test > Configure Run Settings > Select file) -->
-    <None Include="coverage.runsettings" />
+    <None Include="coverage.runsettings">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
