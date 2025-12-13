@@ -32,20 +32,6 @@ jobs:
         mkdir -p TestResults
         dotnet test Tests/Tests.csproj --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="./TestResults/coverage.cobertura.xml" /p:CoverletOutputFormat="cobertura"
 
-    - name: Show TestResults Files (Diagnostic)
-      run: |
-        echo 'TestResults contents (recursive):'
-        ls -R TestResults || true
-        echo 'TestResults sizes:'
-        du -h TestResults || true
-        echo 'Coverage file head (if exists):'
-        if [ -f TestResults/coverage.cobertura.xml ]; then
-          echo 'coverage.cobertura.xml found:'
-          head -n 200 TestResults/coverage.cobertura.xml || true
-        else
-          echo 'No coverage.cobertura.xml at TestResults/coverage.cobertura.xml'
-        fi
-
     - name: Upload Coverage XML Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -79,14 +65,3 @@ jobs:
     - name: Kill Dotnet Process
       run: |
         pkill -f "dotnet run" || true
-
-    - name: Print Cobertura XML (Diagnostic)
-      if: always()
-      run: |
-        echo 'Printing cobertura XML file (if present):'
-        if [ -f TestResults/coverage.cobertura.xml ]; then
-          echo "==== TestResults/coverage.cobertura.xml (first 200 lines) ====";
-          head -n 200 TestResults/coverage.cobertura.xml || true;
-        else
-          echo 'No cobertura XML file at TestResults/coverage.cobertura.xml';
-        fi
