@@ -28,7 +28,7 @@ jobs:
 
     - name: Test (with coverage)
       run: |
-        dotnet test --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./TestResults
+        dotnet test --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverage.runsettings --results-directory ./TestResults
 
     - name: Show TestResults files
       run: |
@@ -42,13 +42,6 @@ jobs:
       with:
         name: coverage-xml
         path: TestResults/**/coverage.cobertura.xml
-
-    - name: Remove runsettings file before Codecov upload
-      run: |
-        if [ -f coverage.runsettings ]; then
-          echo "Removing coverage.runsettings to avoid Codecov upload errors";
-          rm coverage.runsettings;
-        fi
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4

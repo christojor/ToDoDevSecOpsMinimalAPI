@@ -47,7 +47,9 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <!-- include runsettings so it is selectable from Visual Studio Test Explorer (Test > Configure Run Settings > Select file) -->
-    <None Include="coverage.runsettings" />
+    <None Include="coverage.runsettings">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
