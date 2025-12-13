@@ -23,6 +23,12 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore
 
+    - name: Security Audit
+      run: |
+        echo 'Running security audit: dotnet list package --vulnerable (including transitive dependencies)'
+        dotnet --info
+        dotnet list package --vulnerable --include-transitive --verbosity detailed || true
+
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
