@@ -5,5 +5,5 @@ global using ToDoDevSecOpsMinimalAPI.Application.Infrastructure.Services;
 global using ToDoDevSecOpsMinimalAPI.Application.Common.Interfaces;
 global using ToDoDevSecOpsMinimalAPI.Application.Domain.ToDos;
 global using Microsoft.EntityFrameworkCore;
-global using ToDoDevSecOpsMinimalAPI.Application.Features;
+global using ToDoDevSecOpsMinimalAPI.Application.Endpoints;
 global using Microsoft.AspNetCore.Http.HttpResults;

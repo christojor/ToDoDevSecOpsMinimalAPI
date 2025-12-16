@@ -2,6 +2,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ToDoDbContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 builder.Services.AddScoped<IToDoService, ToDoService>();
+builder.Services.AddScoped<IValidator<TodoCreateDTO>, CreateToDoValidator>();
+builder.Services.AddScoped<IValidator<TodoUpdateDTO>, UpdateToDoValidator>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddCors(options =>
 {

@@ -104,7 +104,7 @@ public class ToDoServiceTests
         _dbContext.Todos.Add(todo);
         await _dbContext.SaveChangesAsync();
 
-        var updateDto = new TodoUpdateDTO { Id = todo.Id, Name = "After", IsComplete = true };
+        var updateDto = new TodoUpdateDTO { Name = "After", IsComplete = true };
         var result = await _service.UpdateAsync(todo.Id, updateDto);
 
         Assert.True(result);
@@ -116,7 +116,7 @@ public class ToDoServiceTests
     [Fact]
     public async Task UpdateAsync_Cannot_Update_Non_Existing_Todo()
     {
-        var updateDto = new TodoUpdateDTO { Id = 9999, Name = "X", IsComplete = false };
+        var updateDto = new TodoUpdateDTO { Name = "X", IsComplete = false };
         var result = await _service.UpdateAsync(9999, updateDto);
         Assert.False(result);
     }

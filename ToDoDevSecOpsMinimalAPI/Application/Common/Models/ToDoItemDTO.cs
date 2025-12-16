@@ -21,8 +21,6 @@ public class TodoReadDTO
 
 public class TodoUpdateDTO
 {
-    [Required]
-    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public bool IsComplete { get; set; }
 

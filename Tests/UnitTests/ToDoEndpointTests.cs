@@ -1,14 +1,21 @@
-﻿namespace ToDoDevSecOpsMinimalAPI.Tests.UnitTests;
+﻿using FluentValidation;
+using ToDoDevSecOpsMinimalAPI.Application.Validators;
+
+namespace ToDoDevSecOpsMinimalAPI.Tests.UnitTests;
 
 public class ToDoEndpointTests
 {
     private readonly ToDoDbContext _dbContext;
     private readonly IToDoService _service;
+    private readonly IValidator<TodoCreateDTO> _toDoCreateValidator;
+    private readonly IValidator<TodoUpdateDTO> _toDoUpdateValidator;
 
     public ToDoEndpointTests()
     {
         _dbContext = new MockDb().CreateDbContext();
         _service = new ToDoService(_dbContext);
+        _toDoCreateValidator = new CreateToDoValidator();
+        _toDoUpdateValidator = new UpdateToDoValidator();
     }
 
     [Fact]
@@ -56,7 +63,7 @@ public class ToDoEndpointTests
         var createDto = new TodoCreateDTO { Name = "walk dog", IsComplete = true };
 
         // When creating the Todo
-        var result = await ToDoEndpoints.CreateTodo(createDto, _service);
+        var result = await ToDoEndpoints.CreateTodo(createDto, _service, _toDoCreateValidator);
 
         // Then the result should be Created with the created DTO
         var created = Assert.IsType<Created<TodoReadDTO>>(result);
@@ -73,10 +80,10 @@ public class ToDoEndpointTests
         _dbContext.Todos.Add(todo);
         await _dbContext.SaveChangesAsync();
 
-        var updateDto = new TodoUpdateDTO { Id = todo.Id, Name = "After", IsComplete = true };
+        var updateDto = new TodoUpdateDTO { Name = "After", IsComplete = true };
 
         // When updating the Todo
-        var result = await ToDoEndpoints.UpdateTodo(todo.Id, updateDto, _service);
+        var result = await ToDoEndpoints.UpdateTodo(todo.Id, updateDto, _service, _toDoUpdateValidator);
 
         // Then the result should be NoContent and the DB should be updated
         Assert.IsType<NoContent>(result);
@@ -89,10 +96,10 @@ public class ToDoEndpointTests
     public async Task UpdateTodo_Negative_Returns_NotFound()
     {
         // Given no Todo with the id exists
-        var updateDto = new TodoUpdateDTO { Id = 9999, Name = "X", IsComplete = false };
+        var updateDto = new TodoUpdateDTO { Name = "X", IsComplete = false };
 
         // When attempting to update
-        var result = await ToDoEndpoints.UpdateTodo(9999, updateDto, _service);
+        var result = await ToDoEndpoints.UpdateTodo(9999, updateDto, _service, _toDoUpdateValidator);
 
         // Then NotFound is returned
         Assert.IsType<NotFound>(result);
