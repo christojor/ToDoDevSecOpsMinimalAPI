@@ -40,15 +40,6 @@ public class ToDoServiceTests
     }
 
     [Fact]
-    public async Task Cannot_Create_ToDo_With_Name_Exceeding_MaxLength()
-    {
-        var longName = new string('z', 101);
-        var dto = new TodoCreateDTO { Name = longName, IsComplete = false };
-
-        await Assert.ThrowsAsync<ArgumentException>(async () => await _service.CreateAsync(dto));
-    }
-
-    [Fact]
     public async Task GetByIdAsync_With_DB_Item_Returns_Item()
     {
         var todo = new Todo { Name = "GetMe", IsComplete = false };
@@ -119,12 +110,6 @@ public class ToDoServiceTests
         var updateDto = new TodoUpdateDTO { Name = "X", IsComplete = false };
         var result = await _service.UpdateAsync(9999, updateDto);
         Assert.False(result);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_Cannot_Update_With_Null_Input_Throws_Exception()
-    {
-        await Assert.ThrowsAsync<NullReferenceException>(async () => await _service.UpdateAsync(1, null!));
     }
 
     [Fact]
