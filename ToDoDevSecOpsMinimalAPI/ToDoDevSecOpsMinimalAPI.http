@@ -22,11 +22,10 @@ GET {{ToDoDevSecOpsMinimalAPI_HostAddress}}/todoitems/1
 
 ###
 
-PUT {{ToDoDevSecOpsMinimalAPI_HostAddress}}/todoitems/1
+PUT {{ToDoDevSecOpsMinimalAPI_HostAddress}}/todoitems/2
 Content-Type: application/json
 
 {
-  "id": 1,
   "name": "feed fish",
   "isComplete": false
 }

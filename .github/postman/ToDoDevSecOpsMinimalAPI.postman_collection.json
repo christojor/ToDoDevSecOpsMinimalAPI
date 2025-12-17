@@ -187,6 +187,92 @@
       ] } }]
     },
     {
+      "name": "Create Todo - Validation Empty Name",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"\",\n  \"isComplete\": false\n}" },
+        "url": { "raw": "{{baseUrl}}/todoitems", "host": ["{{baseUrl}}"], "path": ["todoitems"] }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Create Validation Empty: status code is 400', function () {",
+        "  pm.response.to.have.status(400);",
+        "});",
+        "const json = pm.response.json();",
+        "pm.test('Create Validation Empty: contains Name errors', function () {",
+        "  pm.expect(json).to.have.property('errors');",
+        "  pm.expect(json.errors).to.have.property('Name');",
+        "  pm.expect(json.errors.Name.length).to.be.above(0);",
+        "});"
+      ] } }]
+    },
+    {
+      "name": "Create Todo - Validation Too Long Name",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"{{longName}}\",\n  \"isComplete\": false\n}" },
+        "url": { "raw": "{{baseUrl}}/todoitems", "host": ["{{baseUrl}}"], "path": ["todoitems"] }
+      },
+      "event": [
+        { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "pm.environment.set('longName', 'z'.repeat(101));" ] } },
+        { "listen": "test", "script": { "type": "text/javascript", "exec": [
+          "pm.test('Create Validation TooLong: status code is 400', function () {",
+          "  pm.response.to.have.status(400);",
+          "});",
+          "const json = pm.response.json();",
+          "pm.test('Create Validation TooLong: contains Name errors', function () {",
+          "  pm.expect(json).to.have.property('errors');",
+          "  pm.expect(json.errors).to.have.property('Name');",
+          "  pm.expect(json.errors.Name.length).to.be.above(0);",
+          "});"
+        ] } }
+      ]
+    },
+    {
+      "name": "Update Todo - Validation Empty Name",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"id\": 9999,\n  \"name\": \"\",\n  \"isComplete\": false\n}" },
+        "url": { "raw": "{{baseUrl}}/todoitems/9999", "host": ["{{baseUrl}}"], "path": ["todoitems", "9999"] }
+      },
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Update Validation Empty: status code is 400', function () {",
+        "  pm.response.to.have.status(400);",
+        "});",
+        "const json = pm.response.json();",
+        "pm.test('Update Validation Empty: contains Name errors', function () {",
+        "  pm.expect(json).to.have.property('errors');",
+        "  pm.expect(json.errors).to.have.property('Name');",
+        "  pm.expect(json.errors.Name.length).to.be.above(0);",
+        "});"
+      ] } }]
+    },
+    {
+      "name": "Update Todo - Validation Too Long Name",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"id\": 9999,\n  \"name\": \"{{longName}}\",\n  \"isComplete\": false\n}" },
+        "url": { "raw": "{{baseUrl}}/todoitems/9999", "host": ["{{baseUrl}}"], "path": ["todoitems", "9999"] }
+      },
+      "event": [
+        { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [ "pm.environment.set('longName', 'z'.repeat(101));" ] } },
+        { "listen": "test", "script": { "type": "text/javascript", "exec": [
+          "pm.test('Update Validation TooLong: status code is 400', function () {",
+          "  pm.response.to.have.status(400);",
+          "});",
+          "const json = pm.response.json();",
+          "pm.test('Update Validation TooLong: contains Name errors', function () {",
+          "  pm.expect(json).to.have.property('errors');",
+          "  pm.expect(json.errors).to.have.property('Name');",
+          "  pm.expect(json.errors.Name.length).to.be.above(0);",
+          "});"
+        ] } }
+      ]
+    },
+    {
       "name": "Get Non-Existing Todo",
       "request": {
         "method": "GET",
