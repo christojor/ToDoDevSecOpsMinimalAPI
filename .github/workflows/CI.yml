@@ -90,7 +90,7 @@ jobs:
       - name: Run unit tests with coverage
         run: |
           mkdir -p TestResults
-          dotnet test Tests/Tests.csproj --configuration Release --verbosity normal --no-build /p:CollectCoverage=true /p:CoverletOutput="./TestResults/coverage.cobertura.xml" /p:CoverletOutputFormat="cobertura"
+          dotnet test Tests/Tests.csproj --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="./TestResults/coverage.cobertura.xml" /p:CoverletOutputFormat="cobertura"
 
       - name: Collect test Coverage XML
         run: |
