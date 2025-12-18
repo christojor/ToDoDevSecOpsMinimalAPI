@@ -1,83 +1,165 @@
 name: DevSecOps Minimal API CI
 
 on:
-  push:
-    branches: [ "develop", "test", "master" ]
+  # push:
+  #   branches: [ "develop", "test", "master" ]
   pull_request:
     branches: [ "develop", "test", "master" ]
 
 jobs:
-  build:
-    name: Build and Test
+  security-audit:
+    name: Security Audit
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
-    - name: Restore Dependencies
-      run: dotnet restore
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-packages-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-packages-
 
-    - name: Security Audit
-      run: |
-        echo 'Running security audit: dotnet list package --vulnerable (including transitive dependencies)'
-        dotnet --info
-        dotnet list package --vulnerable --include-transitive --verbosity detailed || true
+      - name: Restore Dependencies
+        run: dotnet restore
 
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
+      - name: Security Audit
+        run: |
+          echo 'Running security audit: dotnet list package --vulnerable (including transitive dependencies)'
+          dotnet --info
+          dotnet list package --vulnerable --include-transitive --verbosity detailed || true
 
-    - name: Test
-      run: |
-        mkdir -p TestResults
-        dotnet test Tests/Tests.csproj --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="./TestResults/coverage.cobertura.xml" /p:CoverletOutputFormat="cobertura"
+  build:
+    name: Build
+    needs: security-audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Collect Generated Coverage XML
-      run: |
-        mkdir -p TestResults
-        found=$(find . -type f -name "coverage*.xml" -o -name "coverage.cobertura.xml" | head -n 1 || true)
-        if [ -n "$found" ]; then
-          echo "Found coverage file: $found"
-          cp "$found" TestResults/coverage.cobertura.xml
-        else
-          echo "No coverage XML found in repo workspace"
-        fi
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
 
-    - name: Upload Coverage XML Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-xml
-        path: TestResults/coverage.cobertura.xml
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-packages-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-packages-
 
-    - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./TestResults/coverage.cobertura.xml
-        fail_ci_if_error: true
+      - name: Restore Dependencies
+        run: dotnet restore
 
-    - name: Install Newman
-      run: npm install -g newman
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore
 
-    - name: Start API for E2E/API tests
-      run: |
-        dotnet run --project ToDoDevSecOpsMinimalAPI/ToDoDevSecOpsMinimalAPI.csproj --urls http://localhost:5001 &
-        for i in {1..30}; do
-          if curl -sSf http://localhost:5001/api/swagger >/dev/null; then
-            echo "API started" && break
+  unit-tests:
+    name: Unit Tests and Coverage
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-packages-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-packages-
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Run unit tests with coverage
+        run: |
+          mkdir -p TestResults
+          dotnet test Tests/Tests.csproj --configuration Release --verbosity normal /p:CollectCoverage=true /p:CoverletOutput="./TestResults/coverage.cobertura.xml" /p:CoverletOutputFormat="cobertura"
+
+      - name: Collect test Coverage XML
+        run: |
+          mkdir -p TestResults
+          found=$(find . -type f -name "coverage*.xml" -o -name "coverage.cobertura.xml" | head -n 1 || true)
+          if [ -n "$found" ]; then
+            echo "Found coverage file: $found"
+            cp "$found" TestResults/coverage.cobertura.xml
+          else
+            echo "No coverage XML found in repo workspace"
           fi
-          sleep 1
-        done
 
-    - name: Run Postman Collection with Newman
-      run: |
-        newman run .github/postman/ToDoDevSecOpsMinimalAPI.postman_collection.json -e .github/postman/ToDoDevSecOpsMinimalAPI.postman_environment.json --env-var baseUrl=http://localhost:5001/api --timeout-request 10000
+      - name: Upload Test Coverage XML Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: TestResults/coverage.cobertura.xml
 
-    - name: Kill Dotnet Process
-      run: |
-        pkill -f "dotnet run" || true
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./TestResults/coverage.cobertura.xml
+          fail_ci_if_error: true
+
+  api-tests:
+    name: API Tests
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-packages-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-packages-
+
+      - name: Restore & Build
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Start API for API Tests
+        run: |
+          dotnet run --project ToDoDevSecOpsMinimalAPI/ToDoDevSecOpsMinimalAPI.csproj --urls http://localhost:5001 &
+          for i in {1..30}; do
+            if curl -sSf http://localhost:5001/api/swagger >/dev/null; then
+              echo "API started" && break
+            fi
+            sleep 1
+          done
+
+      - name: Run Postman Collection with Newman
+        run: |
+          newman run .github/postman/ToDoDevSecOpsMinimalAPI.postman_collection.json -e .github/postman/ToDoDevSecOpsMinimalAPI.postman_environment.json --env-var baseUrl=http://localhost:5001/api --timeout-request 10000
+
+      - name: Kill Dotnet Process
+        if: always()
+        run: |
+          pkill -f "dotnet run" || true
